@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Professional Admin Panel Design System */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 210 1% 37%;
+
+    --card: 0 0% 96%;
+    --card-foreground: 210 1% 37%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 1% 37%;
+
+    --primary: 17 99% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 97% 70%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 210 1% 37%;
+
+    --accent: 45 97% 70%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: 240 5.9% 10%;
+
+    --border: 0 0% 93%;
+    --input: 0 0% 93%;
+    --ring: 17 99% 50%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 210 1% 37%;
+    --sidebar-primary: 17 99% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 210 1% 37%;
+    --sidebar-border: 0 0% 93%;
+    --sidebar-ring: 17 99% 50%;
+
+    /* Admin panel specific colors */
+    --admin-primary: 17 99% 50%;
+    --admin-primary-dark: 17 99% 40%;
+    --admin-secondary: 45 97% 70%;
+    --admin-success: 142.1 76.2% 36.3%;
+    --admin-warning: 47.9 95.8% 53.1%;
+    --admin-danger: 0 84.2% 60.2%;
+    --admin-info: 199 89% 48%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(17 99% 50%), hsl(17 99% 40%));
+    --gradient-secondary: linear-gradient(135deg, hsl(45 97% 70%), hsl(45 97% 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 96%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 96%) 0%, hsl(0 0% 100%) 100%);
+
+    /* Shadows */
+    --shadow-primary: 0 10px 30px -10px hsl(17 99% 50% / 0.3);
+    --shadow-card: 0 4px 6px -1px hsl(210 1% 37% / 0.1);
+    --shadow-elegant: 0 20px 25px -5px hsl(210 1% 37% / 0.15);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .dark {
+    --background: 240 6% 10%;
+    --foreground: 240 4.8% 95.9%;
+
+    --card: 240 3.7% 15.9%;
+    --card-foreground: 240 4.8% 95.9%;
+
+    --popover: 240 3.7% 15.9%;
+    --popover-foreground: 240 4.8% 95.9%;
+
+    --primary: 17 99% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 240 4.8% 95.9%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 240 4.8% 95.9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 240 4.8% 95.9%;
+
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 240 4.8% 95.9%;
+
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: 240 5.9% 10%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 17 99% 50%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 17 99% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 17 99% 50%;
+
+    /* Admin panel specific colors */
+    --admin-primary: 17 99% 50%;
+    --admin-primary-dark: 17 99% 40%;
+    --admin-success: 142.1 76.2% 36.3%;
+    --admin-warning: 47.9 95.8% 53.1%;
+    --admin-danger: 0 84.2% 60.2%;
+    --admin-info: 199 89% 48%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(17 99% 50%), hsl(17 99% 40%));
+    --gradient-subtle: linear-gradient(180deg, hsl(240 6% 10%), hsl(240 3.7% 15.9%));
+    --gradient-card: linear-gradient(145deg, hsl(240 3.7% 15.9%) 0%, hsl(240 5.9% 10%) 100%);
+
+    /* Shadows */
+    --shadow-primary: 0 10px 30px -10px hsl(17 99% 50% / 0.3);
+    --shadow-card: 0 4px 6px -1px hsl(240 3.7% 15.9% / 0.3);
+    --shadow-elegant: 0 20px 25px -5px hsl(240 3.7% 15.9% / 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
