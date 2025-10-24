@@ -112,49 +112,47 @@ export const useBookings = () => {
 
   const assignWorker = async (bookingId: string, workerId: string) => {
     try {
-      // First, get the user_id from worker_profiles since worker_id in bookings references users table
-      const { data: workerProfile, error: workerProfileError } = await supabase
-        .from('worker_profiles')
-        .select('user_id')
-        .eq('id', workerId)
-        .single();
+      console.log("Booking ID:", bookingId);
+      console.log("Worker ID selected:", workerId);
 
-      if (workerProfileError) throw workerProfileError;
-      if (!workerProfile) throw new Error('Worker not found');
+      const workerRes = await fetch('https://back-end-for-xirfadsan.onrender.com/api/staff/all_admin');
+      if (!workerRes.ok) throw new Error('Failed to fetch workers');
+      const workers = await workerRes.json();
 
-      const userId = workerProfile.user_id;
+      console.log("All workers:", workers);
 
-      // Now update the booking with the user_id
-      const { error } = await supabase
-        .from('bookings')
-        .update({ worker_id: userId, status: 'confirmed' })
-        .eq('id', bookingId);
+      // Find using staff_id
+      const worker = workers.find((w: any) => String(w.staff_id) === String(workerId));
+      console.log("Matched worker:", worker);
 
-      if (error) throw error;
+      if (!worker) throw new Error('Worker not found');
 
-      // Fetch worker name for local state update
-      const { data: workerData } = await supabase
-        .from('users')
-        .select('name')
-        .eq('id', userId)
-        .single();
+      const updateRes = await fetch(
+        `https://back-end-for-xirfadsan.onrender.com/api/booking/assignWorker/${bookingId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ staff_id: workerId }),
+        }
+      );
 
-      setBookings(bookings.map(booking =>
-        booking.id === bookingId
-          ? {
-            ...booking,
-            worker_name: workerData?.name || 'Unknown Worker',
-            status: 'Confirmed' as const
-          }
-          : booking
-      ));
+      if (!updateRes.ok) throw new Error('Failed to update booking');
+
+      setBookings((prev) =>
+        prev.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, worker_name: worker.name, status: 'Confirmed' }
+            : booking
+        )
+      );
 
       return { success: true };
-    } catch (err) {
-      console.error('Error assigning worker:', err);
-      return { success: false, error: 'Failed to assign worker' };
+    } catch (err: any) {
+      console.error('❌ Backend update error:', err.message);
+      return { success: false, error: err.message };
     }
   };
+
 
   // const updateBookingPrice = async (bookingId: string, price: number) => {
   //   try {

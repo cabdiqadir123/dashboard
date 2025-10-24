@@ -4,6 +4,7 @@ import axios from "axios";
 
 interface Worker {
   id: string;
+  staff_id: string;
   name: string;
   email: string;
   phone: string;
@@ -19,6 +20,7 @@ interface Worker {
   category_id: number;
   available: 'true' | 'false';
   password: string;
+  servicename: string;
 }
 
 export const useWorkers = () => {
@@ -48,7 +50,10 @@ export const useWorkers = () => {
         total_earnings: Number(worker.total_earning || 0),
         created_at: worker.created_at || '',
         password: worker.password || '',
-        sex: worker.sex || ''
+        sex: worker.sex || '',
+        servicename: worker.servicename,
+        category_id: worker.service_id,
+        staff_id: worker.staff_id
       }));
 
       setWorkers(formattedWorkers);
@@ -238,7 +243,9 @@ export const useWorkers = () => {
         image: userResponse.data.image || null,
         category_id: null,
         available: 'true',
-        password: workerData.password
+        password: workerData.password,
+        servicename: workerData.servicename,
+        staff_id: workerData.staff_id
       };
 
       setWorkers([newWorker, ...workers]);

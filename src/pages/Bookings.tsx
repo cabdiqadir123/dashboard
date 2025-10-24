@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -372,7 +372,7 @@ export default function Bookings() {
           {selectedBooking && (
             <PriceEditForm
               booking={selectedBooking}
-              onUpdate={(newAmount,reason) => handlePriceUpdate(selectedBooking.id, newAmount, reason)}
+              onUpdate={(newAmount, reason) => handlePriceUpdate(selectedBooking.id, newAmount, reason)}
               onCancel={() => setIsPriceEditDialogOpen(false)}
             />
           )}
@@ -486,10 +486,11 @@ function WorkerAssignForm({ booking, onAssign, onCancel }: WorkerAssignFormProps
   const [selectedWorker, setSelectedWorker] = useState("");
   const { workers } = useWorkers();
 
-  // Filter workers who offer services in the same category as the booking
-  const eligibleWorkers = workers.filter(worker =>
-    worker.status === 'Active' &&
-    worker.services.some(service => booking.category && service.toLowerCase().includes(booking.category.toLowerCase()))
+  // ✅ Filter workers who offer the same service as the booking
+  const filteredWorkers = workers.filter(
+    (worker) =>
+      worker.servicename?.toLowerCase().trim() ===
+      booking.service_name?.toLowerCase().trim()
   );
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -506,30 +507,44 @@ function WorkerAssignForm({ booking, onAssign, onCancel }: WorkerAssignFormProps
         <p className="text-sm text-muted-foreground">{booking.service_name}</p>
         <p className="text-xs text-muted-foreground">Category: {booking.category}</p>
       </div>
+
       <div className="space-y-2">
-        <Label htmlFor="worker">Select Worker (filtered by category)</Label>
-        <Select value={selectedWorker} onValueChange={setSelectedWorker}>
+        <Label htmlFor="worker">Select Worker (filtered by service)</Label>
+        <Select
+          value={selectedWorker}
+          onValueChange={(val) => setSelectedWorker(val)}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose a worker" />
           </SelectTrigger>
           <SelectContent>
-            {eligibleWorkers.length > 0 ? (
-              eligibleWorkers.map((worker) => (
-                <SelectItem key={worker.id} value={worker.id}>
-                  {worker.name} - {worker.services.join(', ')}
+            {filteredWorkers.length > 0 ? (
+              filteredWorkers.map((worker) => (
+                <SelectItem
+                  key={worker.staff_id}
+                  value={String(worker.staff_id)} // ensure it's string
+                >
+                  {worker.name} — {worker.servicename}
                 </SelectItem>
               ))
             ) : (
-              <SelectItem value="none" disabled>No workers available for this category</SelectItem>
+              <SelectItem value="none" disabled>
+                No workers available for "{booking.service_name}"
+              </SelectItem>
             )}
           </SelectContent>
         </Select>
       </div>
+
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" className="bg-gradient-primary text-white" disabled={!selectedWorker || eligibleWorkers.length === 0}>
+        <Button
+          type="submit"
+          className="bg-gradient-primary text-white"
+          disabled={!selectedWorker || filteredWorkers.length === 0}
+        >
           Assign Worker
         </Button>
       </div>
