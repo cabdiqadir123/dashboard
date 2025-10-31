@@ -24,13 +24,13 @@ export const useNotifications = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/notification/all');
+      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/notification/all_dash');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
 
       const formattedNotifications: Notification[] = (data || []).map((notification: any) => ({
-        id: notification.notification_id,
+        id: notification.latest_id,
         title: notification.title || 'Untitled Notification',
         message: notification.message || '',
         recipients: (notification.recipient_role || 'both') as 'customers' | 'workers' | 'both',
@@ -132,7 +132,6 @@ export const useNotifications = () => {
         from_type: 'Admin',
         from_id: 1,
         recipient_role: notificationData.recipients,
-        user_id: 0,
         title: notificationData.title,
         message: notificationData.message,
         hasButton: 'No',
@@ -142,7 +141,7 @@ export const useNotifications = () => {
       };
 
       const response = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/notification/add",
+        "https://back-end-for-xirfadsan.onrender.com/api/notification/add_to_all",
         notificationPayload
       );
 
