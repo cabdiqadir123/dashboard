@@ -33,7 +33,7 @@ export const useCategories = () => {
       const formattedCategories: Category[] = (data || []).map((category: any) => ({
         id: category.service_id?.toString() || '',
         name: category.name || 'Unnamed',
-        description: category.description || 'DESCRIPTOON',
+        description: category.details || 'DESCRIPTOON',
         image: category.image || null,
         secondary_image: category.secondary_image || null,
         status: category.status || 'Inactive',
@@ -74,6 +74,7 @@ export const useCategories = () => {
 
       const formData = new FormData();
       formData.append('name', categoryData.name);
+      formData.append('details', categoryData.description);
       if (categoryData.image) formData.append('image', categoryData.image);
       if (categoryData.secondary_image) formData.append('secondry_image', categoryData.secondary_image);
       if (categoryData.color) formData.append('color', categoryData.color);
@@ -93,7 +94,7 @@ export const useCategories = () => {
       const newCategory: Category = {
         id: response.data.id.toString(),
         name: response.data.name,
-        description: response.data.description || '',
+        description: response.data.details || '',
         image: null,
         secondary_image: null,
         status: response.data.status as 'Active' | 'Inactive',
@@ -117,6 +118,7 @@ export const useCategories = () => {
     try {
       const formData = new FormData();
       if (updates.name) formData.append("name", updates.name);
+      if (updates.name) formData.append("details", updates.description);
       if (updates.status) formData.append("status", updates.status);
       if (updates.color) formData.append("color", updates.color);
       // Handle images (if provided)

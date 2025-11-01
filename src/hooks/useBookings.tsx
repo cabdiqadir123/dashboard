@@ -38,6 +38,7 @@ export const useBookings = () => {
         booking_number: booking.book_id,
         customer_name: booking.customer_name || 'Unknown Customer',
         customer_email: booking.customer?.email || '',
+        
         worker_name: booking.staff_name || 'Unassigned',
         service_name: booking.name || 'Service',
         category: booking.name || 'Unknown',
