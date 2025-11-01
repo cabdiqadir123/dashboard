@@ -4,16 +4,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Edit, Save, Calendar } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Edit, Save, Calendar, Plus } from "lucide-react";
 import { usePrivacyPolicy, type PrivacyPolicySection } from "@/hooks/usePrivacyPolicy";
 import { useForm } from "react-hook-form";
 
 export default function PrivacyPolicy() {
-  const { privacyPolicySections, loading, updatePrivacyPolicySection, updateAllSectionsEffectiveDate } = usePrivacyPolicy();
+  const { privacyPolicySections, loading, updatePrivacyPolicySection, updateAllSectionsEffectiveDate, createPrivacyPolicySection } =
+    usePrivacyPolicy(); // ✅ make sure your hook has createPrivacyPolicySection()
   const [editingSection, setEditingSection] = useState<PrivacyPolicySection | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [effectiveDate, setEffectiveDate] = useState("");
+  const [isNew, setIsNew] = useState(false); // ✅ for new policy mode
 
   const { register, handleSubmit, reset, setValue } = useForm<{
     section_title: string;
@@ -21,22 +30,32 @@ export default function PrivacyPolicy() {
   }>();
 
   const handleEdit = (section: PrivacyPolicySection) => {
+    setIsNew(false);
     setEditingSection(section);
-    setValue('section_title', section.section_title);
-    setValue('section_content', section.section_content);
+    setValue("section_title", section.section_title);
+    setValue("section_content", section.section_content);
+    setIsDialogOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setIsNew(true);
+    setEditingSection(null);
+    reset();
     setIsDialogOpen(true);
   };
 
   const handleFormSubmit = async (data: { section_title: string; section_content: string }) => {
-    if (!editingSection) return;
-    
     try {
-      await updatePrivacyPolicySection(editingSection.id, data);
+      if (isNew) {
+        await createPrivacyPolicySection(data); // ✅ new function to insert
+      } else if (editingSection) {
+        await updatePrivacyPolicySection(editingSection.id, data);
+      }
       setIsDialogOpen(false);
       setEditingSection(null);
       reset();
     } catch (error) {
-      console.error('Error updating section:', error);
+      console.error("Error saving section:", error);
     }
   };
 
@@ -63,7 +82,13 @@ export default function PrivacyPolicy() {
           />
           <Button onClick={handleUpdateEffectiveDate} disabled={!effectiveDate}>
             <Calendar className="mr-2 h-4 w-4" />
-            Update Effective Date
+            Create New Policy
+          </Button>
+
+          {/* ✅ New Add Section button */}
+          <Button variant="outline" onClick={handleAddNew}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Section
           </Button>
         </div>
       </div>
@@ -100,17 +125,23 @@ export default function PrivacyPolicy() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Privacy Policy Section</DialogTitle>
-            <DialogDescription>Update the content for this privacy policy section.</DialogDescription>
+            <DialogTitle>
+              {isNew ? "Add New Privacy Policy Section" : "Edit Privacy Policy Section"}
+            </DialogTitle>
+            <DialogDescription>
+              {isNew
+                ? "Create a new section for your privacy policy."
+                : "Update the content for this privacy policy section."}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
             <div>
               <Label htmlFor="section_title">Section Title</Label>
-              <Input {...register('section_title', { required: true })} />
+              <Input {...register("section_title", { required: true })} />
             </div>
             <div>
               <Label htmlFor="section_content">Section Content</Label>
-              <Textarea {...register('section_content', { required: true })} rows={10} />
+              <Textarea {...register("section_content", { required: true })} rows={10} />
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
@@ -118,7 +149,7 @@ export default function PrivacyPolicy() {
               </Button>
               <Button type="submit">
                 <Save className="mr-2 h-4 w-4" />
-                Save Changes
+                {isNew ? "Create Section" : "Save Changes"}
               </Button>
             </DialogFooter>
           </form>
