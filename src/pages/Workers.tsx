@@ -416,7 +416,10 @@ export default function Workers() {
                 rating: 5.0,
                 total_jobs: 0,
                 total_earnings: 0,
-                services: []
+                services: [],
+                servicename:  "Unknown",
+                staff_id:  "1",
+
               };
               const result = await createWorker(completeWorkerData);
               if (result.success) {
@@ -484,7 +487,7 @@ function ServiceAssignForm({ worker, onSave, onCancel }: ServiceAssignFormProps)
       <div className="space-y-4">
         <Label>Select Services for {worker.name}</Label>
         <div className="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto">
-          {subServices.filter(service => service.status === 'active').map((service) => (
+          {subServices.filter(service => service.status === 'Active').map((service) => (
             <div key={service.id} className="flex items-center space-x-2">
               <Checkbox
                 id={service.id}
@@ -651,7 +654,7 @@ function WorkerEditForm({ worker, onSave, onCancel }: WorkerEditFormProps) {
         <div className="space-y-2">
           <Label htmlFor="role">Available</Label>
           <Select
-            value={formData.status}
+            value={formData.available}
             onValueChange={(value: 'true' | 'true' | 'false') =>
               setFormData({ ...formData, available: value })
             }
@@ -832,7 +835,7 @@ function WorkerAddForm({ onSave, onCancel }: WorkerAddFormProps) {
         <div className="space-y-2">
           <Label htmlFor="role">Available</Label>
           <Select
-            value={formData.status}
+            value={formData.available}
             onValueChange={(value: 'true' | 'true' | 'false') =>
               setFormData({ ...formData, available: value })
             }

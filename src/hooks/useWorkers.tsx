@@ -53,7 +53,8 @@ export const useWorkers = () => {
         sex: worker.sex || '',
         servicename: worker.servicename,
         category_id: worker.service_id,
-        staff_id: worker.staff_id
+        staff_id: worker.staff_id,
+        available: worker.available
       }));
 
       setWorkers(formattedWorkers);
@@ -215,7 +216,7 @@ export const useWorkers = () => {
       const staffPayload = {
         name: workerData.name,
         service_id: workerData.category_id || null,
-        available: 'true',
+        available: workerData.available || "true",
         created_at
       };
 
@@ -242,7 +243,7 @@ export const useWorkers = () => {
         sex: workerData.sex || "Male",
         image: userResponse.data.image || null,
         category_id: null,
-        available: 'true',
+        available: workerData.available,
         password: workerData.password,
         servicename: workerData.servicename,
         staff_id: workerData.staff_id
