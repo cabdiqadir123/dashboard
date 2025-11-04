@@ -13,6 +13,7 @@ import { Search, Send, Bell, Users, User, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNotifications } from "@/hooks/useNotifications";
 import { supabase } from "@/integrations/supabase/client";
+import axios from "axios";
 
 export default function Notifications() {
   const { notifications, loading, error, createNotification } = useNotifications();
@@ -24,12 +25,13 @@ export default function Notifications() {
 
   const filteredNotifications = notifications.filter(notification => {
     const matchesSearch = notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         notification.message.toLowerCase().includes(searchTerm.toLowerCase());
+      notification.message.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRecipient = recipientFilter === "all" || notification.recipients === recipientFilter;
     const matchesStatus = statusFilter === "all" || notification.status === statusFilter;
-    
+
     return matchesSearch && matchesRecipient && matchesStatus;
   });
+
 
   const handleCreateNotification = async (notificationData: any) => {
     const result: { success: boolean; data?: any; error?: string } = await createNotification({
@@ -39,6 +41,8 @@ export default function Notifications() {
       status: notificationData.scheduledAt ? 'scheduled' : 'sent',
       sent_at: notificationData.scheduledAt ? undefined : new Date().toISOString(),
       scheduled_at: notificationData.scheduledAt,
+      user_id: notificationData.user_id,
+      token: notificationData.token
     });
 
     if (result.success) {
@@ -59,7 +63,7 @@ export default function Notifications() {
   const getRecipientCount = async (recipients: string) => {
     try {
       let count = 0;
-      
+
       if (recipients === 'customers') {
         const { count: customerCount } = await supabase
           .from('users')
@@ -78,7 +82,7 @@ export default function Notifications() {
           .select('*', { count: 'exact', head: true });
         count = totalCount || 0;
       }
-      
+
       return count;
     } catch (error) {
       console.error('Error getting recipient count:', error);
@@ -257,8 +261,8 @@ export default function Notifications() {
                     </TableCell>
                     <TableCell>
                       <Badge variant={getRecipientColor(notification.recipients)}>
-                        {notification.recipients === 'Both' ? 'Customer & Staff' : 
-                         notification.recipients === 'Customer' ? 'Customer' : 'Staff'}
+                        {notification.recipients === 'Both' ? 'Customer & Staff' :
+                          notification.recipients === 'Customer' ? 'Customer' : 'Staff'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -313,12 +317,27 @@ interface NotificationFormProps {
 }
 
 function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
+
+  const [userdata, setuserdata] = useState([]);
+  const fetch_userdata_data = async (id) => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/user/userrole/all/" + id);
+    const resltdata = rptdata.data;
+    setuserdata(resltdata);
+  };
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    fetch_userdata_data("Customer");
+  }, [])
+
   const [formData, setFormData] = useState({
     title: "",
     message: "",
     recipients: "Customer" as 'Customer' | 'Staff' | 'Both',
     scheduleNow: true,
-    scheduledAt: ""
+    scheduledAt: "",
+    user_id: 0,
+    token: ''
   });
   const [recipientCounts, setRecipientCounts] = useState({
     customers: 0,
@@ -327,35 +346,35 @@ function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
   });
 
   // Fetch real recipient counts
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const { count: customersCount } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('role', 'customer');
-        
-        const { count: workersCount } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('role', 'worker');
-        
-        const { count: totalCount } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true });
-        
-        setRecipientCounts({
-          customers: customersCount || 0,
-          workers: workersCount || 0,
-          both: totalCount || 0
-        });
-      } catch (error) {
-        console.error('Error fetching recipient counts:', error);
-      }
-    };
-    
-    fetchCounts();
-  }, []);
+  // useEffect(() => {
+  //   const fetchCounts = async () => {
+  //     try {
+  //       const { count: customersCount } = await supabase
+  //         .from('users')
+  //         .select('*', { count: 'exact', head: true })
+  //         .eq('role', 'customer');
+
+  //       const { count: workersCount } = await supabase
+  //         .from('users')
+  //         .select('*', { count: 'exact', head: true })
+  //         .eq('role', 'worker');
+
+  //       const { count: totalCount } = await supabase
+  //         .from('users')
+  //         .select('*', { count: 'exact', head: true });
+
+  //       setRecipientCounts({
+  //         customers: customersCount || 0,
+  //         workers: workersCount || 0,
+  //         both: totalCount || 0
+  //       });
+  //     } catch (error) {
+  //       console.error('Error fetching recipient counts:', error);
+  //     }
+  //   };
+
+  //   fetchCounts();
+  // }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -363,7 +382,9 @@ function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
       title: formData.title,
       message: formData.message,
       recipients: formData.recipients,
-      scheduledAt: formData.scheduleNow ? undefined : formData.scheduledAt
+      scheduledAt: formData.scheduleNow ? undefined : formData.scheduledAt,
+      user_id: formData.user_id,
+      token: formData.token
     });
   };
 
@@ -383,18 +404,18 @@ function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
         <Input
           id="title"
           value={formData.title}
-          onChange={(e) => setFormData({...formData, title: e.target.value})}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           placeholder="Enter notification title"
           required
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
         <Textarea
           id="message"
           value={formData.message}
-          onChange={(e) => setFormData({...formData, message: e.target.value})}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
           placeholder="Enter your notification message"
           rows={4}
           required
@@ -404,36 +425,98 @@ function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label>Recipients</Label>
-        <Select value={formData.recipients} onValueChange={(value: 'Customer' | 'Staff' | 'Both') => setFormData({...formData, recipients: value})}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select recipients" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Customer">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Customers Only
-              </div>
-            </SelectItem>
-            <SelectItem value="Staff">
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Workers Only
-              </div>
-            </SelectItem>
-            <SelectItem value="Both">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Both Customers & Workers
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-        <div className="text-sm text-muted-foreground">
-          Will be sent to {recipientCount()}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Recipients</Label>
+          <Select value={formData.recipients}
+            onValueChange={(value: 'Customer' | 'Staff' | 'Both') => {
+              setFormData({ ...formData, recipients: value }),
+                fetch_userdata_data(value || "Customer");
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select recipients" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Customer">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Customers Only
+                </div>
+              </SelectItem>
+              <SelectItem value="Staff">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Workers Only
+                </div>
+              </SelectItem>
+              <SelectItem value="Both">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Both Customers & Workers
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="text-sm text-muted-foreground">
+            Will be sent to {recipientCount()}
+          </div>
         </div>
+
+        <div className="space-y-2">
+          <Label>User</Label>
+          <Select
+            value={
+              formData.user_id
+                ? JSON.stringify({ id: formData.user_id, token: formData.token })
+                : ""
+            }
+            onValueChange={(value) => {
+              try {
+                const parsed = JSON.parse(value);
+                setFormData({
+                  ...formData,
+                  user_id: parsed.id,
+                  token: parsed.token,
+                });
+              } catch {
+                setFormData({ ...formData, user_id: null, token: "" });
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Search & select user" />
+            </SelectTrigger>
+            <SelectContent>
+              <div className="p-2">
+                <Input
+                  placeholder="Search user..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="mb-2"
+                />
+              </div>
+
+              {userdata
+                .filter((user) =>
+                  user.name.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map((user) => (
+                  <SelectItem
+                    key={user.id}
+                    value={JSON.stringify({ id: user.id, token: user.token })}
+                  >
+                    {user.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+
+          <div className="text-sm text-muted-foreground">
+            Will be sent to {recipientCount()}
+          </div>
+        </div>
+
       </div>
 
       <div className="space-y-4">
@@ -441,7 +524,7 @@ function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
           <Checkbox
             id="scheduleNow"
             checked={formData.scheduleNow}
-            onCheckedChange={(checked) => setFormData({...formData, scheduleNow: checked as boolean})}
+            onCheckedChange={(checked) => setFormData({ ...formData, scheduleNow: checked as boolean })}
           />
           <Label htmlFor="scheduleNow">Send immediately</Label>
         </div>
@@ -453,7 +536,7 @@ function NotificationForm({ onSubmit, onCancel }: NotificationFormProps) {
               id="scheduledAt"
               type="datetime-local"
               value={formData.scheduledAt}
-              onChange={(e) => setFormData({...formData, scheduledAt: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
               min={new Date().toISOString().slice(0, 16)}
               required={!formData.scheduleNow}
             />

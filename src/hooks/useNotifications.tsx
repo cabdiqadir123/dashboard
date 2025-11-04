@@ -13,6 +13,8 @@ interface Notification {
   recipient_count: number;
   read_count: number;
   created_at: string;
+  user_id: number;
+  token: string,
 }
 
 export const useNotifications = () => {
@@ -109,63 +111,130 @@ export const useNotifications = () => {
   const createNotification = async (notificationData: Omit<Notification, 'id' | 'created_at' | 'recipient_count' | 'read_count'>) => {
     try {
       const created_at = getSomaliaTime();
-
-      const sendresponse = await axios.post(
-        'https://back-end-for-xirfadsan.onrender.com/api/send/send-data-to-all',
-        {
-          title: notificationData.title,     // notification title
-          body: notificationData.message,    // notification body
-          role: notificationData.recipients, // 'Customer' or 'Staff'
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
+      if (notificationData.user_id == 0) {
+        const sendresponse = await axios.post(
+          'https://back-end-for-xirfadsan.onrender.com/api/send/send-data-to-all',
+          {
+            title: notificationData.title,     // notification title
+            body: notificationData.message,    // notification body
+            role: notificationData.recipients, // 'Customer' or 'Staff'
           },
-        }
-      );
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
 
-      console.log("✅ sended created:", sendresponse.data);
+        console.log("✅ sended created:", sendresponse.data);
 
 
-      // Step 2: Create staff linked to this user
-      const notificationPayload = {
-        from_type: 'Admin',
-        from_id: 1,
-        recipient_role: notificationData.recipients,
-        title: notificationData.title,
-        message: notificationData.message,
-        hasButton: 'No',
-        hasBook_id: 0,
-        hasBook_started: 'notPending',
-        created_at
-      };
+        // Step 2: Create staff linked to this user
+        const notificationPayload = {
+          from_type: 'Admin',
+          from_id: 1,
+          recipient_role: notificationData.recipients,
+          title: notificationData.title,
+          message: notificationData.message,
+          hasButton: 'No',
+          hasBook_id: 0,
+          hasBook_started: 'notPending',
+          created_at
+        };
 
-      const response = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/notification/add_to_all",
-        notificationPayload
-      );
+        const response = await axios.post(
+          "https://back-end-for-xirfadsan.onrender.com/api/notification/add_to_all",
+          notificationPayload
+        );
 
-      console.log("✅ notification created:", response.data);
+        console.log("✅ notification created:", response.data);
 
-      const userId = response.data.id;
+        const userId = response.data.id;
 
-      // Step 3: Construct the Worker object for local state
-      const newNotification: Notification = {
-        id: userId,
-        title: notificationData.title,
-        message: notificationData.message,
-        recipients: notificationData.recipients as 'Customer' | 'Staff' | 'Both',
-        status: notificationData.status as 'sent' | 'scheduled' | 'draft',
-        sent_at: notificationData.sent_at,
-        scheduled_at: notificationData.scheduled_at,
-        recipient_count: 0,
-        read_count: 0,
-        created_at: created_at,
-      };
+        // Step 3: Construct the Worker object for local state
+        const newNotification: Notification = {
+          id: userId,
+          title: notificationData.title,
+          message: notificationData.message,
+          recipients: notificationData.recipients as 'Customer' | 'Staff' | 'Both',
+          status: notificationData.status as 'sent' | 'scheduled' | 'draft',
+          sent_at: notificationData.sent_at,
+          scheduled_at: notificationData.scheduled_at,
+          recipient_count: 0,
+          read_count: 0,
+          created_at: created_at,
+          user_id: 0,
+          token: ""
+        };
 
-      setNotifications([newNotification, ...notifications]);
+        setNotifications([newNotification, ...notifications]);
 
-      return { success: true, data: newNotification };
+        return { success: true, data: newNotification };
+      } else {
+        
+
+        const sendresponse = await axios.post(
+          'https://back-end-for-xirfadsan.onrender.com/api/send/send-data',
+          {
+            title: notificationData.title,     // notification title
+            body: notificationData.message,    // notification body
+            role: notificationData.recipients, // 'Customer' or 'Staff'
+            token: notificationData.token
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        console.log("✅ sended created:", sendresponse.data);
+
+
+        // Step 2: Create staff linked to this user
+        const notificationPayload = {
+          from_type: 'Admin',
+          from_id: 1,
+          recipient_role: notificationData.recipients,
+          user_id: notificationData.user_id,
+          title: notificationData.title,
+          message: notificationData.message,
+          hasButton: 'No',
+          hasBook_id: 0,
+          hasBook_started: 'notPending',
+          created_at
+        };
+
+        const response = await axios.post(
+          "https://back-end-for-xirfadsan.onrender.com/api/notification/add",
+          notificationPayload
+        );
+
+        console.log("✅ notification created:", response.data);
+
+        const userId = response.data.id;
+
+        // Step 3: Construct the Worker object for local state
+        const newNotification: Notification = {
+          id: userId,
+          title: notificationData.title,
+          message: notificationData.message,
+          recipients: notificationData.recipients as 'Customer' | 'Staff' | 'Both',
+          status: notificationData.status as 'sent' | 'scheduled' | 'draft',
+          sent_at: notificationData.sent_at,
+          scheduled_at: notificationData.scheduled_at,
+          recipient_count: 0,
+          read_count: 0,
+          created_at: created_at,
+          user_id: 0,
+          token: ''
+        };
+
+        setNotifications([newNotification, ...notifications]);
+
+        return { success: true, data: newNotification };
+      }
+
     } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error("❌ Backend response error:", err.response?.data || err.message);
