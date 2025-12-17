@@ -51,6 +51,7 @@ const navigation = [
   { name: "Blog Posts", href: "/blog", icon: BookOpen },
   { name: "Testimonials", href: "/testimonials", icon: Star },
   { name: "Team Members", href: "/team-members", icon: UserSquare2 },
+  { name: "intern Members", href: "/intern", icon: UserSquare2 },
   { name: "Contact Messages", href: "/contact-messages", icon: Mail },
   { name: "Privacy Policy", href: "/privacy-policy", icon: Shield },
   { name: "Account Deletions", href: "/account-deletions", icon: UserX },

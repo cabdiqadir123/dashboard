@@ -91,6 +91,7 @@ import Notifications from "./pages/Notifications";
 import Blog from "./pages/Blog";
 import Testimonials from "./pages/Testimonials";
 import TeamMembers from "./pages/TeamMembers";
+import Intern from "./pages/Intern";
 import ContactMessages from "./pages/ContactMessages";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import AccountDeletions from "./pages/AccountDeletions";
@@ -126,6 +127,7 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/testimonials" element={<Testimonials />} />
                 <Route path="/team-members" element={<TeamMembers />} />
+                <Route path="/intern" element={<Intern />} />
                 <Route path="/contact-messages" element={<ContactMessages />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/account-deletions" element={<AccountDeletions />} />
