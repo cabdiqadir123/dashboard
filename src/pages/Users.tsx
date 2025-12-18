@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Search, Plus, Edit, Trash2, User as UserIcon, Phone, Mail, Calendar, Ey
 import { useToast } from "@/hooks/use-toast";
 import { useUsers } from "@/hooks/useUsers";
 import { ImageUpload } from "@/components/ui/image-upload";
+import axios from "axios";
 
 interface User {
   id: string;
@@ -25,7 +26,10 @@ interface User {
   password?: string;
   image: File | string | null;
   sex: 'Female' | 'Male';
-  address: string
+  address: string,
+  city: string;
+  state: string;
+  district: string;
 }
 
 
@@ -95,7 +99,7 @@ export default function Users() {
     const user = users.find(u => u.id === userId);
     if (!user) return;
 
-    console.log('in handleToggleStatus is',userId);
+    console.log('in handleToggleStatus is', userId);
 
     const newStatus = user.status === 'Active' ? 'Inactive' : 'Active';
     const { success } = await updateUser(userId, { status: newStatus });
@@ -358,6 +362,46 @@ function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
     onSave(formData);
   };
 
+  const [city, setcity] = useState([]);
+  const fetch_city = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/city");
+    const resltdata = rptdata.data;
+    setcity(resltdata);
+  };
+
+  const [district, setdistrict] = useState([]);
+  const fetch_district = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/district");
+    const resltdata = rptdata.data;
+    setdistrict(resltdata);
+  };
+
+  const [states, setstates] = useState([]);
+  const fetch_state = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/state");
+    const resltdata = rptdata.data;
+    setstates(resltdata);
+  };
+
+  useEffect(() => {
+    fetch_city();
+    fetch_state();
+    fetch_district();
+  }, []);
+
+  useEffect(() => {
+    if (!user?.address) return;
+
+    const parts = user.address.split(",").map(p => p.trim());
+
+    setFormData(prev => ({
+      ...prev,
+      district: parts[0] || "",
+      state: parts[1] || "",
+      city: parts[2] || "",
+    }));
+  }, [user]);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -432,7 +476,48 @@ function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
           </Select>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">City</Label>
+          <Select value={formData.city.toString()} onValueChange={(value) => setFormData({ ...formData, city: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {city.map(city => (
+                <SelectItem key={city.id} value={city.name.toString()}>{city.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">State</Label>
+          <Select value={formData.state.toString()} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map(state => (
+                <SelectItem key={state.id} value={state.name.toString()}>{state.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">district</Label>
+          <Select value={formData.district.toString()} onValueChange={(value) => setFormData({ ...formData, district: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {district.map(district => (
+                <SelectItem key={district.id} value={district.name.toString()}>{district.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      {/* <div className="space-y-2">
         <Label htmlFor="location">Location</Label>
         <Input
           id="location"
@@ -440,7 +525,7 @@ function UserEditForm({ user, onSave, onCancel }: UserEditFormProps) {
           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
           required
         />
-      </div>
+      </div> */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
@@ -500,13 +585,43 @@ function UserAddForm({ onSave, onCancel }: UserAddFormProps) {
     password: '',
     image: null,
     sex: 'Male' as 'Male' | 'Female',
-    address: ''
+    address: '',
+    city: '',
+    state: '',
+    district: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
   };
+
+  const [city, setcity] = useState([]);
+  const fetch_city = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/city");
+    const resltdata = rptdata.data;
+    setcity(resltdata);
+  };
+
+  const [district, setdistrict] = useState([]);
+  const fetch_district = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/district");
+    const resltdata = rptdata.data;
+    setdistrict(resltdata);
+  };
+
+  const [states, setstates] = useState([]);
+  const fetch_state = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/state");
+    const resltdata = rptdata.data;
+    setstates(resltdata);
+  };
+
+  useEffect(() => {
+    fetch_city();
+    fetch_state();
+    fetch_district();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -585,7 +700,48 @@ function UserAddForm({ onSave, onCancel }: UserAddFormProps) {
           </Select>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">City</Label>
+          <Select value={formData.city.toString()} onValueChange={(value) => setFormData({ ...formData, city: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {city.map(city => (
+                <SelectItem key={city.id} value={city.name.toString()}>{city.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">State</Label>
+          <Select value={formData.state.toString()} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map(state => (
+                <SelectItem key={state.id} value={state.name.toString()}>{state.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">district</Label>
+          <Select value={formData.district.toString()} onValueChange={(value) => setFormData({ ...formData, district: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {district.map(district => (
+                <SelectItem key={district.id} value={district.name.toString()}>{district.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      {/* <div className="space-y-2">
         <Label htmlFor="location">Location</Label>
         <Input
           id="location"
@@ -593,7 +749,7 @@ function UserAddForm({ onSave, onCancel }: UserAddFormProps) {
           onChange={(e) => setFormData({ ...formData, address: e.target.value })}
           required
         />
-      </div>
+      </div> */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>

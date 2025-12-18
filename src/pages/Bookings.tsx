@@ -8,11 +8,59 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Calendar, DollarSign, Clock, MapPin, User, Settings, Edit } from "lucide-react";
+import { Search, Calendar, DollarSign, Clock, MapPin, User, Settings, Edit, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useBookings } from "@/hooks/useBookings";
 import { useWorkers } from "@/hooks/useWorkers";
 import axios from "axios";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { useCategories } from "@/hooks/useCategories";
+import AvailableTimeSelect from "@/hooks/AvailableTimePickerProps ";
+import { Value } from "@radix-ui/react-select";
+
+type BookingCreatePayload = {
+  book_id: number;
+
+  customer_id: number;
+  service_id: number;
+  address: string;
+  // sub_service_id: number;
+  staff_id: number;
+
+  booking_status: string;
+
+  price_amount: number;
+  amount: number;
+  per: number;
+  per_type: string;
+
+  Avialable_time: string;
+  discription: string;
+  startdate: string;
+  created_at?: string;
+};
+
+
+interface Bookings {
+  id: number;
+  book_id: number;
+  customer_id: number;
+  service_id: number;
+  sub_service_id: number;
+  booking_status: string;
+  price_amount: number;
+  amount: number;
+  per: number;
+  per_type: string;
+  staff_id: number;
+  Avialable_time: string;
+  discription: string;
+  startdate: string;
+  created_at: string;
+  city: string;
+  state: string;
+  district: string;
+}
 
 export default function Bookings() {
   const [booking_sub_services, setbooking_sub_services] = useState([]);
@@ -30,6 +78,8 @@ export default function Bookings() {
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [isPriceEditDialogOpen, setIsPriceEditDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
 
   const filteredBookings = bookings.filter(booking => {
     const searchLower = searchTerm.toLowerCase();
@@ -119,6 +169,75 @@ export default function Bookings() {
     completed: bookings.filter(b => b.status === 'Completed').length
   };
 
+
+  const createBooking = async (bookingData: BookingCreatePayload) => {
+    try {
+      const res = await axios.post(
+        "https://back-end-for-xirfadsan.onrender.com/api/booking/addNew",
+        bookingData,
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+
+      return { success: true, data: res.data };
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error("❌ Backend response error:", err.response?.data || err.message);
+      } else {
+        console.error("❌ Unknown error:", err);
+      }
+      return { success: false, error: "Failed to create booking", err };
+    }
+  };
+
+
+  const handleSaveBooking = async (
+    bookingData: BookingCreatePayload,
+    subServices: { sub_service_id: number; item: string }[]
+  ) => {
+    // 1️⃣ Create the main booking
+    const bookingResult = await createBooking(bookingData);
+
+    if (bookingResult.success) {
+      const book_id = bookingResult.data.book_id; // backend should return this
+
+      try {
+        // 2️⃣ Insert sub-services for this booking
+        for (const sub of subServices) {
+          await axios.post(
+            "https://back-end-for-xirfadsan.onrender.com/api/booking/add_booking_subservices",
+            {
+              book_id,
+              sub_service_id: sub.sub_service_id,
+              item: sub.item,
+            },
+            { headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        toast({
+          title: "Booking Created",
+          description: "Booking and sub-services added successfully.",
+        });
+        setIsAddDialogOpen(false); // close dialog
+      } catch (err) {
+        console.error("❌ Error adding sub-services:", err);
+        toast({
+          title: "Partial Success",
+          description: "Booking created but failed to add some sub-services.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Error",
+        description: bookingResult.error,
+        variant: "destructive",
+      });
+    }
+  };
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -126,6 +245,13 @@ export default function Bookings() {
           <h1 className="text-3xl font-bold text-foreground">Bookings Management</h1>
           <p className="text-muted-foreground">Monitor and manage service bookings</p>
         </div>
+        <Button
+          className="bg-gradient-primary text-white hover:opacity-90"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Worker
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -331,6 +457,21 @@ export default function Bookings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Worker Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Booking</DialogTitle>
+          </DialogHeader>
+          <WorkerAddForm
+            onSave={async (bookingData, subServices) => {
+              await handleSaveBooking(bookingData, subServices);
+            }}
+            onCancel={() => setIsAddDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Booking Details Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
@@ -633,6 +774,425 @@ function PriceEditForm({ booking, onUpdate, onCancel }: PriceEditFormProps) {
         </Button>
         <Button type="submit" className="bg-gradient-primary text-white">
           Update Price
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+
+interface BookingAddFormProps {
+  onSave: (
+    booking: BookingCreatePayload,
+    subServices: { sub_service_id: number; item: string }[]
+  ) => void;
+  onCancel: () => void;
+}
+
+
+// insert form
+
+function WorkerAddForm({ onSave, onCancel }: BookingAddFormProps) {
+  const { categories } = useCategories();
+  const [formData, setFormData] = useState({
+    book_id: 1234,
+
+    customer_id: 0,
+    service_id: 0,
+    sub_service_id: 0,
+    staff_id: 0,
+
+    booking_status: 'Pending',
+
+    price_amount: 0,
+    amount: 0,
+    per: 0,
+    per_type: 'Percantage',
+
+    Avialable_time: '',
+    discription: '',
+    startdate: '',
+
+    city: '',
+    state: '',
+    district: ''
+  });
+
+  const getSomaliaTime = (): string => {
+    const date = new Date();
+    const utc = date.getTime() + date.getTimezoneOffset() * 60000;
+    const somaliaTime = new Date(utc + 3 * 3600000); // UTC+3
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return `${somaliaTime.getFullYear()}-${pad(somaliaTime.getMonth() + 1)}-${pad(somaliaTime.getDate())} ` +
+      `${pad(somaliaTime.getHours())}:${pad(somaliaTime.getMinutes())}:${pad(somaliaTime.getSeconds())}`;
+  };
+
+  const formatStartDate = (dateStr: string) => {
+    if (!dateStr) return "";
+
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit",
+    }) + " 00-00";
+  };
+
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const created_at = getSomaliaTime();
+
+    const payload: BookingCreatePayload = {
+      book_id: formData.book_id,
+      customer_id: formData.customer_id,
+      service_id: formData.service_id,
+      staff_id: formData.staff_id,
+
+      booking_status: formData.booking_status || 'Pending',
+
+      price_amount: formData.amount, // ✅ FIX
+      amount: formData.amount,
+      per: formData.per,
+      per_type: formData.per_type || 'Fixed_Amount',
+
+      Avialable_time: formData.Avialable_time,
+      discription: formData.discription,
+      startdate: formatStartDate(formData.startdate),
+
+      address: `${formData.district},${formData.state},${formData.city}`,
+      created_at: created_at
+    };
+
+    const subServices = formData.sub_service_id
+      ? [{ sub_service_id: formData.sub_service_id, item: "1" }]
+      : [];
+
+
+
+    console.log("🚀 Sending payload:", payload); // 👈 DEBUG
+
+    onSave(payload, subServices);
+  };
+
+
+  const [city, setcity] = useState([]);
+  const fetch_city = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/city");
+    const resltdata = rptdata.data;
+    setcity(resltdata);
+  };
+
+  const [district, setdistrict] = useState([]);
+  const fetch_district = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/district");
+    const resltdata = rptdata.data;
+    setdistrict(resltdata);
+  };
+
+  const [states, setstates] = useState([]);
+  const fetch_state = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/state");
+    const resltdata = rptdata.data;
+    setstates(resltdata);
+  };
+
+  const [userdata, setuserdata] = useState([]);
+  const fetch_userdata_data = async (id) => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/user/userrole/all/" + id);
+    const resltdata = rptdata.data;
+    setuserdata(resltdata);
+  };
+
+  const [workerdata, setworkerdata] = useState([]);
+  const fetch_worker_data = async (id) => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/staff/all_admin/" + id);
+    const resltdata = rptdata.data;
+    setworkerdata(resltdata);
+  };
+
+  const [subservicesdata, setsubservicesdata] = useState([]);
+  const fetch_subservices_data = async (id) => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/subservices/allNew/" + id);
+    const resltdata = rptdata.data;
+    setsubservicesdata(resltdata);
+  };
+
+  useEffect(() => {
+    fetch_city();
+    fetch_state();
+    fetch_district();
+    fetch_userdata_data("Customer");
+  }, []);
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">Customer</Label>
+          <Select value={formData.customer_id.toString()} onValueChange={(value) => setFormData({ ...formData, customer_id: parseInt(value) })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {userdata.map(user => (
+                <SelectItem key={user.id} value={user.id.toString()}>{user.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">Category</Label>
+          <Select value={formData.service_id.toString()} onValueChange={(value) => {
+            if (!value) return; // 🚫 STOP empty calls
+            setFormData({ ...formData, service_id: parseInt(value) });
+            fetch_worker_data(value);
+            fetch_subservices_data(value);
+          }}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(category => (
+                <SelectItem key={category.id} value={category.id.toString()}>{category.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">Sub services</Label>
+          <Select
+            value={formData.sub_service_id?.toString()}
+            onValueChange={(value) => {
+              const selectedSubService = subservicesdata.find(
+                (s) => s.sub_service_id === Number(value)
+              );
+
+              if (!selectedSubService) return;
+
+              setFormData((prev) => ({
+                ...prev,
+                sub_service_id: selectedSubService.sub_service_id,
+                amount: selectedSubService.price,      // ✅ set price here
+                price_amount: selectedSubService.price // optional if you use both
+              }));
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {subservicesdata.map(subservices => (
+                <SelectItem key={subservices.sub_service_id} value={subservices.sub_service_id.toString()}>{subservices.sub_service}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="location">Discription</Label>
+          <Input
+            id="location"
+            value={formData.discription}
+            onChange={(e) => setFormData({ ...formData, discription: e.target.value })}
+            required
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">Worker</Label>
+          <Select value={formData.staff_id.toString()} onValueChange={(value) => {
+            setFormData({ ...formData, staff_id: parseInt(value) });
+          }}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {workerdata.map(worker => (
+                <SelectItem key={worker.staff_id} value={worker.staff_id.toString()}>{worker.staff_name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="role">Status</Label>
+          <Select
+            value={formData.booking_status}
+            onValueChange={(value: 'Pending' | 'Pending' | 'Confirmed' | 'Completed' | 'Cancelled') =>
+              setFormData({ ...formData, booking_status: value })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Confirmed">Confirmed</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">City</Label>
+          <Select value={formData.city.toString()} onValueChange={(value) => setFormData({ ...formData, city: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {city.map(city => (
+                <SelectItem key={city.id} value={city.name.toString()}>{city.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">State</Label>
+          <Select value={formData.state.toString()} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map(state => (
+                <SelectItem key={state.id} value={state.name.toString()}>{state.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">district</Label>
+          <Select value={formData.district.toString()} onValueChange={(value) => setFormData({ ...formData, district: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {district.map(district => (
+                <SelectItem key={district.id} value={district.name.toString()}>{district.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <AvailableTimeSelect
+            value={formData.Avialable_time}
+            onChange={(time) => setFormData({ ...formData, Avialable_time: time })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="location">Orginal price</Label>
+          <Input
+            id="location"
+            value={formData.price_amount}
+            onChange={(e) => setFormData({ ...formData, price_amount: parseInt(e.target.value) })}
+            required
+            disabled
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="location">Total</Label>
+          <Input
+            id="location"
+            value={formData.amount}
+            onChange={(e) => setFormData({ ...formData, amount: parseInt(e.target.value) })}
+            required
+            disabled
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="location">Per</Label>
+          <Input
+            id="per"
+            type="number"
+            value={formData.per}
+            onChange={(e) => {
+              const perValue = Number(e.target.value) || 0;
+
+              setFormData((prev) => {
+                if (prev.per_type === "Fixed_Amount") {
+                  const totalPrice = prev.price_amount - perValue;
+                  return {
+                    ...prev,
+                    per: perValue,          // ✅ now updates correctly
+                    amount: totalPrice      // ✅ recalculated
+                  };
+                } else {
+                  const discount = (perValue / 100) * prev.price_amount;
+                  const totalPrice = prev.price_amount - discount;
+                  return {
+                    ...prev,
+                    per: perValue,          // ✅ now updates correctly
+                    amount: totalPrice      // ✅ recalculated
+                  };
+                }
+              });
+            }}
+            required
+          />
+
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="role">Type</Label>
+          <Select
+            value={formData.per_type}
+            onValueChange={(value: "Percentage" | "Fixed_Amount") => {
+              setFormData((prev) => {
+                let totalPrice = prev.price_amount;
+
+                if (value === "Fixed_Amount") {
+                  // per = fixed discount amount
+                  totalPrice = Math.max(0, prev.price_amount - prev.per);
+                } else {
+                  // per = percentage
+                  const discount = (prev.per / 100) * prev.price_amount;
+                  totalPrice = prev.price_amount - discount;
+                }
+
+                return {
+                  ...prev,
+                  per_type: value,
+                  amount: totalPrice,
+                };
+              });
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Percantage">Percentage</SelectItem>
+              <SelectItem value="Fixed_Amount">Fixed Amount</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="location">Start date</Label>
+        <Input
+          type="date"
+          value={formData.startdate}
+          onChange={(e) =>
+            setFormData({ ...formData, startdate: e.target.value })
+          }
+          required
+        />
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" className="bg-gradient-primary text-white">
+          Create Booking
         </Button>
       </div>
     </form>

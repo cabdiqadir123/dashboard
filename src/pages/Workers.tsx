@@ -16,6 +16,7 @@ import { useSubServices } from "@/hooks/useSubServices";
 import { useWorkerServices } from "@/hooks/useWorkerServices";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { useCategories } from "@/hooks/useCategories";
+import axios from "axios";
 
 interface Worker {
   id: string;
@@ -26,6 +27,9 @@ interface Worker {
   total_jobs: number;
   status: 'Active' | 'Inactive';
   location: string;
+  city: string;
+  state: string;
+  district: string;
   services: string[];
   total_earnings: number;
   created_at: string;
@@ -417,9 +421,8 @@ export default function Workers() {
                 total_jobs: 0,
                 total_earnings: 0,
                 services: [],
-                servicename:  "Unknown",
-                staff_id:  "1",
-
+                servicename: "Unknown",
+                staff_id: "1",
               };
               const result = await createWorker(completeWorkerData);
               if (result.success) {
@@ -528,6 +531,48 @@ function WorkerEditForm({ worker, onSave, onCancel }: WorkerEditFormProps) {
 
   const { categories } = useCategories();
 
+  const [city, setcity] = useState([]);
+  const fetch_city = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/city");
+    const resltdata = rptdata.data;
+    setcity(resltdata);
+  };
+
+  const [district, setdistrict] = useState([]);
+  const fetch_district = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/district");
+    const resltdata = rptdata.data;
+    setdistrict(resltdata);
+  };
+
+  const [states, setstates] = useState([]);
+  const fetch_state = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/state");
+    const resltdata = rptdata.data;
+    setstates(resltdata);
+  };
+
+  useEffect(() => {
+    fetch_city();
+    fetch_state();
+    fetch_district();
+  }, []);
+
+  useEffect(() => {
+    if (!worker?.location) return;
+
+    const parts = worker.location.split(",").map(p => p.trim());
+
+    setFormData(prev => ({
+      ...prev,
+      district: parts[0] || "",
+      state: parts[1] || "",
+      city: parts[2] || "",
+    }));
+  }, [worker]);
+
+
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -632,7 +677,48 @@ function WorkerEditForm({ worker, onSave, onCancel }: WorkerEditFormProps) {
           </Select>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">City</Label>
+          <Select value={formData.city.toString()} onValueChange={(value) => setFormData({ ...formData, city: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {city.map(city => (
+                <SelectItem key={city.id} value={city.name.toString()}>{city.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">state</Label>
+          <Select value={formData.state.toString()} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map(state => (
+                <SelectItem key={state.id} value={state.name.toString()}>{state.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">district</Label>
+          <Select value={formData.district.toString()} onValueChange={(value) => setFormData({ ...formData, district: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {district.map(district => (
+                <SelectItem key={district.id} value={district.name.toString()}>{district.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      {/* <div className="space-y-2">
         <Label htmlFor="location">Location</Label>
         <Input
           id="location"
@@ -640,7 +726,7 @@ function WorkerEditForm({ worker, onSave, onCancel }: WorkerEditFormProps) {
           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           required
         />
-      </div>
+      </div> */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="image">Primary Image</Label>
@@ -693,7 +779,7 @@ function WorkerEditForm({ worker, onSave, onCancel }: WorkerEditFormProps) {
 }
 
 interface WorkerAddFormProps {
-  onSave: (worker: Pick<Worker, 'name' | 'email' | 'phone' | 'location' | 'status' | 'sex' | 'image' | 'category_id' | 'available'> & { password?: string }) => void;
+  onSave: (worker: Pick<Worker, 'name' | 'email' | 'phone' | 'location' | 'city' | 'state' | 'district' | 'status' | 'sex' | 'image' | 'category_id' | 'available'> & { password?: string }) => void;
   onCancel: () => void;
 }
 
@@ -711,13 +797,43 @@ function WorkerAddForm({ onSave, onCancel }: WorkerAddFormProps) {
     sex: 'Male' as 'Male' | 'Female',
     image: null,
     category_id: 0,
-    available: 'true' as | 'true' | 'false'
+    available: 'true' as | 'true' | 'false',
+    city: '',
+    state: '',
+    district: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
   };
+
+  const [city, setcity] = useState([]);
+  const fetch_city = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/city");
+    const resltdata = rptdata.data;
+    setcity(resltdata);
+  };
+
+  const [district, setdistrict] = useState([]);
+  const fetch_district = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/district");
+    const resltdata = rptdata.data;
+    setdistrict(resltdata);
+  };
+
+  const [states, setstates] = useState([]);
+  const fetch_state = async () => {
+    const rptdata = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/address/state");
+    const resltdata = rptdata.data;
+    setstates(resltdata);
+  };
+
+  useEffect(() => {
+    fetch_city();
+    fetch_state();
+    fetch_district();
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -813,7 +929,48 @@ function WorkerAddForm({ onSave, onCancel }: WorkerAddFormProps) {
           </Select>
         </div>
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">City</Label>
+          <Select value={formData.city.toString()} onValueChange={(value) => setFormData({ ...formData, city: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {city.map(city => (
+                <SelectItem key={city.id} value={city.name.toString()}>{city.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">State</Label>
+          <Select value={formData.state.toString()} onValueChange={(value) => setFormData({ ...formData, state: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {states.map(state => (
+                <SelectItem key={state.id} value={state.name.toString()}>{state.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="category">district</Label>
+          <Select value={formData.district.toString()} onValueChange={(value) => setFormData({ ...formData, district: value })}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {district.map(district => (
+                <SelectItem key={district.id} value={district.name.toString()}>{district.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      {/* <div className="space-y-2">
         <Label htmlFor="location">Location</Label>
         <Input
           id="location"
@@ -821,7 +978,7 @@ function WorkerAddForm({ onSave, onCancel }: WorkerAddFormProps) {
           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           required
         />
-      </div>
+      </div> */}
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="image">Primary Image</Label>

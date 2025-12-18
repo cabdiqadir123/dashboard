@@ -14,7 +14,10 @@ interface User {
   password?: string;
   image: File | string;
   sex: 'Male' | 'Female',
-  address: string
+  address: string,
+  city: string;
+  state: string;
+  district: string;
 }
 
 export const useUsers = () => {
@@ -32,20 +35,50 @@ export const useUsers = () => {
       const data = await response.json();
 
       // Format user data similar to Supabase version
-      const formattedUsers: User[] = (data || []).map((user: any) => ({
-        id: user.id,
-        name: user.name || 'Unknown User',
-        email: user.email || '',
-        phone: user.phone || '',
-        role: user.role || 'customer',
-        status: user.status || 'inactive',
-        created_at: user.created_at || '',
-        booking_count: user.total_bookings || 0, // if backend sends this count
-        profile_image: '/placeholder.svg',
-        password: user.password || '', // optional — only if safe to include
-        sex: user.sex,
-        address: user.address
-      }));
+      // const formattedUsers: User[] = (data || []).map((user: any) => ({
+      //   id: user.id,
+      //   name: user.name || 'Unknown User',
+      //   email: user.email || '',
+      //   phone: user.phone || '',
+      //   role: user.role || 'customer',
+      //   status: user.status || 'inactive',
+      //   created_at: user.created_at || '',
+      //   booking_count: user.total_bookings || 0, // if backend sends this count
+      //   profile_image: '/placeholder.svg',
+      //   password: user.password || '', // optional — only if safe to include
+      //   sex: user.sex,
+      //   address: user.address
+      // }));
+
+      const formattedUsers: User[] = (data || []).map((user: any) => {
+        const addressParts = (user.address || '')
+          .split(',')
+          .map((p: string) => p.trim());
+
+        const district = addressParts[0] || '';
+        const state = addressParts[1] || '';
+        const city = addressParts[2] || '';
+
+        return {
+          id: user.id,
+          name: user.name || 'Unknown User',
+          email: user.email || '',
+          phone: user.phone || '',
+          role: user.role || 'customer',
+          status: user.status || 'inactive',
+          created_at: user.created_at || '',
+          booking_count: user.total_bookings || 0, // if backend sends this count
+          profile_image: '/placeholder.svg',
+          password: user.password || '', // optional — only if safe to include
+          sex: user.sex,
+          address: user.address,
+
+          // ✅ extracted values
+          district: district,   // Wadajir
+          state: state,         // Banaadir
+          city: city,           // Mogadishu
+        };
+      });
 
       setUsers(formattedUsers);
       setError(null);
@@ -82,11 +115,13 @@ export const useUsers = () => {
     try {
       const formData = new FormData();
 
+      const address = updates.district + "," + updates.state + "," + updates.city;
+
       if (updates.name) formData.append("name", updates.name);
       if (updates.email) formData.append("email", updates.email);
       if (updates.password) formData.append("password", updates.password);
       if (updates.phone) formData.append("phone", updates.phone);
-      if (updates.address) formData.append("address", updates.address);
+      if (updates.address) formData.append("address", address);
       if (updates.sex) formData.append("sex", updates.sex);
       if (updates.role) formData.append("role", updates.role);       // ✅ only if defined
       if (updates.status) formData.append("status", updates.status); // ✅ only if defined
@@ -227,12 +262,14 @@ export const useUsers = () => {
       const created_at = getSomaliaTime();
       const formData = new FormData();
 
+      const address = userData.district + "," + userData.state + "," + userData.city;
+
       // Append all required fields
       formData.append("name", userData.name);
       formData.append("email", userData.email);
       formData.append("password", userData.password || "defaultpass123");
       formData.append("phone", userData.phone);
-      formData.append("address", userData.address || "");
+      formData.append("address", address || "");
       formData.append("sex", userData.sex || "Male");
       formData.append("role", userData.role || 'Customer');
       formData.append("status", userData.status || "Active");
@@ -270,7 +307,10 @@ export const useUsers = () => {
         image: null,
         password: userData.password || '',
         sex: userData.sex,
-        address: userData.sex
+        address: address,
+        city: userData.address,
+        state: userData.address,
+        district: userData.address
       };
 
       setUsers([newUser, ...users]);

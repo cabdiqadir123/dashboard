@@ -12,6 +12,9 @@ interface Worker {
   total_jobs: number;
   status: 'Active' | 'Inactive';
   location: string;
+  city: string;
+  state: string;
+  district: string;
   services: string[];
   total_earnings: number;
   created_at: string;
@@ -37,25 +40,40 @@ export const useWorkers = () => {
 
       const data = await response.json();
 
-      const formattedWorkers: Worker[] = (data || []).map((worker: any) => ({
-        id: worker.staff_user_id,
-        name: worker.staff_name || 'Unknown Worker',
-        email: worker.staff_email || '',
-        phone: worker.staff_phone || '',
-        rating: Number(worker.rating || 0),
-        total_jobs: Number(worker.total_jobs || 0),
-        status: (worker.status || 'Inactive') as 'Active' | 'Inactive',
-        location: worker.staff_address || 'Unknown',
-        services: worker.servicename || "",
-        total_earnings: Number(worker.total_earning || 0),
-        created_at: worker.created_at || '',
-        password: worker.password || '',
-        sex: worker.sex || '',
-        servicename: worker.servicename,
-        category_id: worker.service_id,
-        staff_id: worker.staff_id,
-        available: worker.available
-      }));
+      const formattedWorkers: Worker[] = (data || []).map((worker: any) => {
+        const addressParts = (worker.staff_address || '')
+          .split(',')
+          .map((p: string) => p.trim());
+
+        const district = addressParts[0] || '';
+        const state = addressParts[1] || '';
+        const city = addressParts[2] || '';
+
+        return {
+          id: worker.staff_user_id,
+          name: worker.staff_name || 'Unknown Worker',
+          email: worker.staff_email || '',
+          phone: worker.staff_phone || '',
+          rating: Number(worker.rating || 0),
+          total_jobs: Number(worker.total_jobs || 0),
+          status: (worker.status || 'Inactive') as 'Active' | 'Inactive',
+          location: worker.staff_address || 'Unknown',
+          services: worker.servicename || "",
+          total_earnings: Number(worker.total_earning || 0),
+          created_at: worker.created_at || '',
+          password: worker.password || '',
+          sex: worker.sex || '',
+          servicename: worker.servicename,
+          category_id: worker.service_id,
+          staff_id: worker.staff_id,
+          available: worker.available,
+
+          // ✅ extracted values
+          district: district,   // Wadajir
+          state: state,         // Banaadir
+          city: city,           // Mogadishu
+        };
+      });
 
       setWorkers(formattedWorkers);
       setError(null);
@@ -101,12 +119,14 @@ export const useWorkers = () => {
     try {
       const formData = new FormData();
 
+      const address = updates.district + "," + updates.state + "," + updates.city;
+
       // Append only fields that exist
       if (updates.name) formData.append("name", updates.name);
       if (updates.email) formData.append("email", updates.email);
       if (updates.password) formData.append("password", updates.password);
       if (updates.phone) formData.append("phone", updates.phone);
-      if (updates.location) formData.append("address", updates.location);
+      if (updates.location) formData.append("address", address);
       if (updates.sex) formData.append("sex", updates.sex);
       formData.append("role", 'Staff');
       if (updates.status) formData.append("status", updates.status);
@@ -182,12 +202,14 @@ export const useWorkers = () => {
       const created_at = getSomaliaTime();
       const formData = new FormData();
 
+      const address = workerData.district + "," + workerData.state + "," + workerData.city;
+
       // Append all required fields
       formData.append("name", workerData.name);
       formData.append("email", workerData.email);
       formData.append("password", workerData.password || "defaultpass123");
       formData.append("phone", workerData.phone);
-      formData.append("address", workerData.location || "");
+      formData.append("address", address || "");
       formData.append("sex", workerData.sex || "Male");
       formData.append("role", "Staff");
       formData.append("status", workerData.status || "Active");
@@ -236,7 +258,7 @@ export const useWorkers = () => {
         rating: 5.0,
         total_jobs: 0,
         status: workerData.status || "Active",
-        location: workerData.location || "",
+        location: address || "",
         services: ['Unkown'],
         total_earnings: 0,
         created_at,
@@ -246,7 +268,10 @@ export const useWorkers = () => {
         available: workerData.available,
         password: workerData.password,
         servicename: workerData.servicename,
-        staff_id: workerData.staff_id
+        staff_id: workerData.staff_id,
+        city: '',
+        state: '',
+        district: ''
       };
 
       setWorkers([newWorker, ...workers]);
