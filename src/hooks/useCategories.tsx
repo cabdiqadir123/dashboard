@@ -25,7 +25,7 @@ export const useCategories = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/services/allNew');
+      const response = await fetch('https://gurihage.com/api/services/allNew');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -84,7 +84,7 @@ export const useCategories = () => {
       console.log('Sending category data:', categoryData.secondary_image);
 
       const response = await axios.post(
-        'https://back-end-for-xirfadsan.onrender.com/api/services/add',
+        'https://gurihage.com/api/services/add',
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -127,7 +127,7 @@ export const useCategories = () => {
 
       // 🛰️ Send PUT request to your API
       const response = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/services/update/${categoryId}`,
+        `https://gurihage.com/api/services/update/${categoryId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -155,7 +155,7 @@ export const useCategories = () => {
     try {
       // 🛰️ Call your backend API
       const response= await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/services/delete",
+        "https://gurihage.com/api/services/delete",
         { service_id: categoryId }
       );
 

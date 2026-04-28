@@ -35,7 +35,7 @@ export const useWorkers = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/staff/all_admin');
+      const response = await fetch('https://gurihage.com/api/staff/all_admin');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -94,7 +94,7 @@ export const useWorkers = () => {
 
       // 🔄 Update backend via Axios
       const response = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/user/status/${workerId}`,
+        `https://gurihage.com/api/user/status/${workerId}`,
         { status },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -142,7 +142,7 @@ export const useWorkers = () => {
 
       // Step 1: Update user record
       const userResponse = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/user/update/${workerId}`,
+        `https://gurihage.com/api/user/update/${workerId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -158,7 +158,7 @@ export const useWorkers = () => {
 
       if (Object.keys(staffPayload).length > 0) {
         const staffResponse = await axios.put(
-          `https://back-end-for-xirfadsan.onrender.com/api/staff/updateNew/${updates.id || workerId}`,
+          `https://gurihage.com/api/staff/updateNew/${updates.id || workerId}`,
           staffPayload
         );
         console.log("✅ Staff profile updated:", staffResponse.data);
@@ -225,7 +225,7 @@ export const useWorkers = () => {
 
       // Step 1: Create user via backend API
       const userResponse = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/user/add",
+        "https://gurihage.com/api/user/add",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -243,7 +243,7 @@ export const useWorkers = () => {
       };
 
       const staffResponse = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/staff/addNew",
+        "https://gurihage.com/api/staff/addNew",
         staffPayload
       );
 
@@ -294,14 +294,14 @@ export const useWorkers = () => {
 
       // 1️⃣ Delete staff first
       await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/staff/deleteNew",
+        "https://gurihage.com/api/staff/deleteNew",
         { staff_id: workerId } // make sure you pass staffId if it's different from workerId
       );
       console.log("✅ Staff deleted:", workerId);
 
       // 2️⃣ Delete user next
       await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/user/delete",
+        "https://gurihage.com/api/user/delete",
         { id: workerId }
       );
       console.log("✅ User deleted:", workerId);

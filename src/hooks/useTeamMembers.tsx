@@ -22,7 +22,7 @@ export const useTeamMembers = () => {
     try {
       setLoading(true);
 
-      const res = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/member/allNew");
+      const res = await axios.get("https://gurihage.com/api/member/allNew");
 
       // Ensure it's an array, even if backend sends a single object
       const membersArray = Array.isArray(res.data) ? res.data : [res.data];
@@ -31,7 +31,7 @@ export const useTeamMembers = () => {
       const members = membersArray.map((member: any) => ({
         ...member,
         is_active: Boolean(member.is_active), // convert 1 → true
-        image: `https://back-end-for-xirfadsan.onrender.com/api/member/image/${member.id}`, // attach image URL
+        image: `https://gurihage.com/api/member/image/${member.id}`, // attach image URL
       }));
 
       setTeamMembers(members);
@@ -49,7 +49,7 @@ export const useTeamMembers = () => {
   // const fetchTeamMembers = async () => {
   //   try {
   //     setLoading(true);
-  //     const res = await axios.get('https://back-end-for-xirfadsan.onrender.com/api/member/allNew');
+  //     const res = await axios.get('https://gurihage.com/api/member/allNew');
   //     const data = res.data || [];
 
   //     setTeamMembers(data || []);
@@ -112,7 +112,7 @@ export const useTeamMembers = () => {
       formData.append('created_at', created_at)
       if (teamMember.image) formData.append('image', teamMember.image);
 
-      const res = await axios.post('https://back-end-for-xirfadsan.onrender.com/api/member/addNew', formData, {
+      const res = await axios.post('https://gurihage.com/api/member/addNew', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -169,7 +169,7 @@ export const useTeamMembers = () => {
   const updateTeamMember = async (id: string, updates: Partial<TeamMember>) => {
     try {
       const res = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/member/updateNew/${id}`,
+        `https://gurihage.com/api/member/updateNew/${id}`,
         updates,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -222,7 +222,7 @@ export const useTeamMembers = () => {
   const deleteTeamMember = async (id: string) => {
     try {
 
-      const res = await axios.post("https://back-end-for-xirfadsan.onrender.com/api/member/delete", {
+      const res = await axios.post("https://gurihage.com/api/member/delete", {
         testimonial_id: id
       });
 

@@ -23,7 +23,7 @@ export const useRecentBookings = (limit: number = 5) => {
       try {
         setLoading(true);
 
-        const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/booking/all');
+        const response = await fetch('https://gurihage.com/api/booking/all');
         if (!response.ok) throw new Error('Failed to fetch bookings');
 
         const data: any[] = await response.json();

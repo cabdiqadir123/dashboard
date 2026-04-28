@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/user/login', {
+      const response = await fetch('https://gurihage.com/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone, password }),

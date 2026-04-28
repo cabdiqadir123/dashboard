@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';
 
-const BASE_URL = 'https://back-end-for-xirfadsan.onrender.com/api/intern';
+const BASE_URL = 'https://gurihage.com/api/intern';
 
 export interface Intern {
   id: string;

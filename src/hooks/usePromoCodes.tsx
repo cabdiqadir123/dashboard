@@ -41,7 +41,7 @@ export const usePromoCodes = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/discount/allnew');
+      const response = await fetch('https://gurihage.com/api/discount/allnew');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -170,7 +170,7 @@ export const usePromoCodes = () => {
 
       // ✅ Make API request
       const response = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/discount/addNew",
+        "https://gurihage.com/api/discount/addNew",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -265,7 +265,7 @@ export const usePromoCodes = () => {
 
       // Step 1: Update user record
       const userResponse = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/discount/updateNew/${promoId}`,
+        `https://gurihage.com/api/discount/updateNew/${promoId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -314,7 +314,7 @@ export const usePromoCodes = () => {
 
       // 1️⃣ Delete promocode first
       await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/discount/delete",
+        "https://gurihage.com/api/discount/delete",
         { id: promoId } 
       );
       console.log("✅ promocode deleted:", promoId);

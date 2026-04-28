@@ -34,9 +34,9 @@ export const useReports = () => {
 
       // Fetch data from your backend
       const [bookingsRes, usersRes, earningsRes] = await Promise.all([
-        fetch('https://back-end-for-xirfadsan.onrender.com/api/booking/all'),
-        fetch('https://back-end-for-xirfadsan.onrender.com/api/user/allNew'),
-        fetch('https://back-end-for-xirfadsan.onrender.com/api/earning/all'),
+        fetch('https://gurihage.com/api/booking/all'),
+        fetch('https://gurihage.com/api/user/allNew'),
+        fetch('https://gurihage.com/api/earning/all'),
       ]);
 
       const bookingsData = await bookingsRes.json();
@@ -115,7 +115,7 @@ export const useReports = () => {
 
   const exportToCSV = async () => {
     try {
-      const res = await fetch('https://back-end-for-xirfadsan.onrender.com/api/booking/all');
+      const res = await fetch('https://gurihage.com/api/booking/all');
       const data = await res.json();
 
       if (!res.ok) throw new Error('Failed to fetch bookings for export');

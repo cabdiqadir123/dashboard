@@ -25,7 +25,7 @@ export const useSubServices = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://back-end-for-xirfadsan.onrender.com/api/subservices/allNew');
+      const response = await fetch('https://gurihage.com/api/subservices/allNew');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -90,7 +90,7 @@ export const useSubServices = () => {
 
       // 🛰️ Send POST request to your backend
       const response = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/subservices/add_new",
+        "https://gurihage.com/api/subservices/add_new",
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -151,7 +151,7 @@ export const useSubServices = () => {
 
       // 🛰️ Send PUT request to your backend API
       const response = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/subservices/updateNew/${subServiceId}`,
+        `https://gurihage.com/api/subservices/updateNew/${subServiceId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -183,7 +183,7 @@ export const useSubServices = () => {
 
       // 🛰️ Send delete request to your backend
       const response = await axios.post(
-        "https://back-end-for-xirfadsan.onrender.com/api/subservices/delete",
+        "https://gurihage.com/api/subservices/delete",
         { sub_service_id: subServiceId }
       );
 

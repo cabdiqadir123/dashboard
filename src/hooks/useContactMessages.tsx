@@ -25,7 +25,7 @@ export const useContactMessages = () => {
     try {
       setLoading(true);
 
-      const res = await axios.get("https://back-end-for-xirfadsan.onrender.com/api/contact/all");
+      const res = await axios.get("https://gurihage.com/api/contact/all");
 
       // If your backend returns an array directly:
       const messages = res.data || [];
@@ -48,7 +48,7 @@ export const useContactMessages = () => {
   const markAsRead = async (id: string) => {
     try {
       const response = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/contact/update_is_read/${id}`,
+        `https://gurihage.com/api/contact/update_is_read/${id}`,
         { is_read: true },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -129,7 +129,7 @@ export const useContactMessages = () => {
 
       const replied_at = formatDate(new Date());
       const response = await axios.put(
-        `https://back-end-for-xirfadsan.onrender.com/api/contact/update_replied_at/${id}`,
+        `https://gurihage.com/api/contact/update_replied_at/${id}`,
         {
           is_read: true,
           replied_at: replied_at

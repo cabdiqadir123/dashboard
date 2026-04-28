@@ -19,7 +19,7 @@ export const useWorkerServices = (workerId?: string) => {
   const fetchWorkerServices = async (id?: string) => {
     try {
       setLoading(true);
-      const url = 'https://back-end-for-xirfadsan.onrender.com/api/staff/services/all';
+      const url = 'https://gurihage.com/api/staff/services/all';
       const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch worker services');
       const data = await res.json();
@@ -37,7 +37,7 @@ export const useWorkerServices = (workerId?: string) => {
   const assignServices = async (workerId: string, subServiceIds: string[]) => {
     try {
       const res = await fetch(
-        `https://back-end-for-xirfadsan.onrender.com/api/staff/assign-services/${workerId}`,
+        `https://gurihage.com/api/staff/assign-services/${workerId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -59,7 +59,7 @@ export const useWorkerServices = (workerId?: string) => {
   const getWorkerServices = async (workerId: string) => {
     try {
       const res = await fetch(
-        `https://back-end-for-xirfadsan.onrender.com/api/staff/services/${workerId}`
+        `https://gurihage.com/api/staff/services/${workerId}`
       );
       if (!res.ok) throw new Error('Failed to get worker services');
       const data = await res.json();
