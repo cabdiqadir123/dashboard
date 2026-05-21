@@ -29,7 +29,7 @@ export const useUsers = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://gurihage.com/api/user/allNew');
+      const response = await fetch('https://api.xirfadsan.com/api/user/allNew');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -133,7 +133,7 @@ export const useUsers = () => {
       console.log("🛰️ Sending update for user:", userId, updates);
 
       const userResponse = await axios.put(
-        `https://gurihage.com/api/user/update/${userId}`,
+        `https://api.xirfadsan.com/api/user/update/${userId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -185,7 +185,7 @@ export const useUsers = () => {
 
       // 2️⃣ Delete user next
       await axios.post(
-        "https://gurihage.com/api/user/delete",
+        "https://api.xirfadsan.com/api/user/delete",
         { id: userId }
       );
       console.log("✅ User deleted:", userId);
@@ -285,7 +285,7 @@ export const useUsers = () => {
 
       // Step 1: Create user via backend API
       const userResponse = await axios.post(
-        "https://gurihage.com/api/user/add",
+        "https://api.xirfadsan.com/api/user/add",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

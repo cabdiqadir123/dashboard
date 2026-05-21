@@ -28,7 +28,7 @@ export const useBookings = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://gurihage.com/api/booking/all');
+      const response = await fetch('https://api.xirfadsan.com/api/booking/all');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -88,7 +88,7 @@ export const useBookings = () => {
     try {
       // ✅ Update via backend API
       const response = await axios.put(
-        `https://gurihage.com/api/booking/updatestatus/${bookingId}`,
+        `https://api.xirfadsan.com/api/booking/updatestatus/${bookingId}`,
         { booking_status: status }, // use the key your backend expects
         { headers: { "Content-Type": "application/json" } }
       );
@@ -116,7 +116,7 @@ export const useBookings = () => {
       console.log("Booking ID:", bookingId);
       console.log("Worker ID selected:", workerId);
 
-      const workerRes = await fetch('https://gurihage.com/api/staff/all_admin');
+      const workerRes = await fetch('https://api.xirfadsan.com/api/staff/all_admin');
       if (!workerRes.ok) throw new Error('Failed to fetch workers');
       const workers = await workerRes.json();
 
@@ -129,7 +129,7 @@ export const useBookings = () => {
       if (!worker) throw new Error('Worker not found');
 
       const updateRes = await fetch(
-        `https://gurihage.com/api/booking/assignWorker/${bookingId}`,
+        `https://api.xirfadsan.com/api/booking/assignWorker/${bookingId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -179,7 +179,7 @@ export const useBookings = () => {
     try {
       // ✅ Update via backend API
       const response = await axios.put(
-        `https://gurihage.com/api/booking/updateamountNew/${bookingId}`,
+        `https://api.xirfadsan.com/api/booking/updateamountNew/${bookingId}`,
         { amount: price, reason: reason }, // use the key your backend expects
         { headers: { "Content-Type": "application/json" } }
       );

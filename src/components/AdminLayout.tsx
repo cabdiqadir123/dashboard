@@ -199,7 +199,7 @@ export default function AdminLayout() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={'https://gurihage.com/api/user/image/'+user.id} alt="Admin" />
+                      <AvatarImage src={'https://api.xirfadsan.com/api/user/image/'+user.id} alt="Admin" />
                       <AvatarFallback>
                         {user.email?.charAt(0).toUpperCase() || "A"}
                       </AvatarFallback>

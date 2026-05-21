@@ -32,7 +32,7 @@ export const useBlogPosts = () => {
   const fetchBlogPosts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('https://gurihage.com/api/blog/all');
+      const res = await axios.get('https://api.xirfadsan.com/api/blog/all');
       const data = res.data || [];
 
       const formatted = data.map((item: any) => ({
@@ -78,7 +78,7 @@ export const useBlogPosts = () => {
       if (post.cover_image) formData.append('image', post.cover_image);
 
       const res = await axios.post(
-        'https://gurihage.com/api/blog/add_New',
+        'https://api.xirfadsan.com/api/blog/add_New',
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -112,7 +112,7 @@ export const useBlogPosts = () => {
   const updateBlogPost = async (id: string, updates: FormData) => {
     try {
       const res = await axios.put(
-        `https://gurihage.com/api/blog/updateNew/${id}`,
+        `https://api.xirfadsan.com/api/blog/updateNew/${id}`,
         updates,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -134,7 +134,7 @@ export const useBlogPosts = () => {
   // ✅ Delete blog post
   const deleteBlogPost = async (id: string) => {
     try {
-      const res = await axios.post('https://gurihage.com/api/blog/delete', { id: id });
+      const res = await axios.post('https://api.xirfadsan.com/api/blog/delete', { id: id });
 
       setBlogPosts((prev) => prev.filter((b) => b.id !== id));
 

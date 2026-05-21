@@ -25,7 +25,7 @@ export const useComplaints = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://gurihage.com/api/complaint/all');
+      const response = await fetch('https://api.xirfadsan.com/api/complaint/all');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -72,7 +72,7 @@ export const useComplaints = () => {
 
       // 🛰️ Send update request to backend
       const response = await axios.put(
-        `https://gurihage.com/api/complaint/update/${complaintId}`,
+        `https://api.xirfadsan.com/api/complaint/update/${complaintId}`,
         updateData,
         {
           headers: { "Content-Type": "application/json" },

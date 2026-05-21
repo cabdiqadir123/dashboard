@@ -24,7 +24,7 @@ export const useTestimonials = () => {
   const fetchTestimonials = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('https://gurihage.com/api/testimonial/all');
+      const res = await axios.get('https://api.xirfadsan.com/api/testimonial/all');
       const data = res.data || [];
 
       const formatted = data.map((item: any) => ({
@@ -73,7 +73,7 @@ export const useTestimonials = () => {
       formData.append('created_at', created_at)
       if (testimonial.person_image) formData.append('image', testimonial.person_image);
 
-      const res = await axios.post('https://gurihage.com/api/testimonial/addNew', formData, {
+      const res = await axios.post('https://api.xirfadsan.com/api/testimonial/addNew', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -103,7 +103,7 @@ export const useTestimonials = () => {
   const updateTestimonial = async (id: string, updates: FormData) => {
     try {
       const res = await axios.put(
-        `https://gurihage.com/api/testimonial/updateNew/${id}`,
+        `https://api.xirfadsan.com/api/testimonial/updateNew/${id}`,
         updates,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -128,7 +128,7 @@ export const useTestimonials = () => {
   const deleteTestimonial = async (id: string) => {
     try {
 
-      const res = await axios.post("https://gurihage.com/api/testimonial/delete", {
+      const res = await axios.post("https://api.xirfadsan.com/api/testimonial/delete", {
         testimonial_id:id
       });
 

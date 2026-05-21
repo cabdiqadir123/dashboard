@@ -25,7 +25,7 @@ export const usePayments = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://gurihage.com/api/earning/all');
+      const response = await fetch('https://api.xirfadsan.com/api/earning/all');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -90,7 +90,7 @@ export const usePayments = () => {
     try {
       // ✅ Update via backend API
       const response = await axios.put(
-        `https://gurihage.com/api/earning/update/${paymentId}`,
+        `https://api.xirfadsan.com/api/earning/update/${paymentId}`,
         { status: status }, // use the key your backend expects
         { headers: { "Content-Type": "application/json" } }
       );

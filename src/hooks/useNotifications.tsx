@@ -26,7 +26,7 @@ export const useNotifications = () => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://gurihage.com/api/notification/all_dash');
+      const response = await fetch('https://api.xirfadsan.com/api/notification/all_dash');
       if (!response.ok) throw new Error('Network response was not ok');
 
       const data = await response.json();
@@ -113,7 +113,7 @@ export const useNotifications = () => {
       const created_at = getSomaliaTime();
       if (notificationData.user_id == 0) {
         const sendresponse = await axios.post(
-          'https://gurihage.com/api/send/send-data-to-all',
+          'https://api.xirfadsan.com/api/send/send-data-to-all',
           {
             title: notificationData.title,     // notification title
             body: notificationData.message,    // notification body
@@ -143,7 +143,7 @@ export const useNotifications = () => {
         };
 
         const response = await axios.post(
-          "https://gurihage.com/api/notification/add_to_all",
+          "https://api.xirfadsan.com/api/notification/add_to_all",
           notificationPayload
         );
 
@@ -174,7 +174,7 @@ export const useNotifications = () => {
         
 
         const sendresponse = await axios.post(
-          'https://gurihage.com/api/send/send-data',
+          'https://api.xirfadsan.com/api/send/send-data',
           {
             title: notificationData.title,     // notification title
             body: notificationData.message,    // notification body
@@ -206,7 +206,7 @@ export const useNotifications = () => {
         };
 
         const response = await axios.post(
-          "https://gurihage.com/api/notification/add",
+          "https://api.xirfadsan.com/api/notification/add",
           notificationPayload
         );
 

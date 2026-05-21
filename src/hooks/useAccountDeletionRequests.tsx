@@ -26,7 +26,7 @@ export const useAccountDeletionRequests = () => {
       setLoading(true);
 
       const res = await axios.get(
-        "https://gurihage.com/api/account_delete/all"
+        "https://api.xirfadsan.com/api/account_delete/all"
       );
 
       // If your backend returns an array directly:
@@ -83,7 +83,7 @@ export const useAccountDeletionRequests = () => {
   const deleteRequest = async (id: string) => {
     try {
       const response = await axios.post(
-        "https://gurihage.com/api/account_delete/delete",
+        "https://api.xirfadsan.com/api/account_delete/delete",
         { id },
         { headers: { "Content-Type": "application/json" } }
       );

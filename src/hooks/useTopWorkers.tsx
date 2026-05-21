@@ -18,7 +18,7 @@ export const useTopWorkers = (limit: number = 5) => {
     try {
       setLoading(true);
 
-      const response = await fetch('https://gurihage.com/api/staff/all_admin');
+      const response = await fetch('https://api.xirfadsan.com/api/staff/all_admin');
       if (!response.ok) throw new Error('Failed to fetch top workers');
 
       const data = await response.json();

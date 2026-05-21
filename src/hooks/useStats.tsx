@@ -50,13 +50,13 @@ export const useStats = () => {
           categoriesRes,
           subServicesRes,
         ] = await Promise.all([
-          fetch('https://gurihage.com/api/user/all'),
-          fetch('https://gurihage.com/api/booking/all'),
-          fetch('https://gurihage.com/api/earning/all'),
-          fetch('https://gurihage.com/api/staff/all_admin'),
-          fetch('https://gurihage.com/api/complaint/all'),
-          fetch('https://gurihage.com/api/services/all'),
-          fetch('https://gurihage.com/api/subservices/allNew'),
+          fetch('https://api.xirfadsan.com/api/user/all'),
+          fetch('https://api.xirfadsan.com/api/booking/all'),
+          fetch('https://api.xirfadsan.com/api/earning/all'),
+          fetch('https://api.xirfadsan.com/api/staff/all_admin'),
+          fetch('https://api.xirfadsan.com/api/complaint/all'),
+          fetch('https://api.xirfadsan.com/api/services/all'),
+          fetch('https://api.xirfadsan.com/api/subservices/allNew'),
         ]);
 
         // Convert to JSON

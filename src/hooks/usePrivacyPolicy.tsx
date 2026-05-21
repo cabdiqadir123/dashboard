@@ -24,7 +24,7 @@ export const usePrivacyPolicy = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://gurihage.com/api/privacy/all"
+        "https://api.xirfadsan.com/api/privacy/all"
       );
       setPrivacyPolicySections(response.data || []);
     } catch (err) {
@@ -72,7 +72,7 @@ export const usePrivacyPolicy = () => {
       };
 
       const response = await axios.post(
-        "https://gurihage.com/api/privacy/add",
+        "https://api.xirfadsan.com/api/privacy/add",
         payload,
         {
           headers: { "Content-Type": "application/json" },
@@ -120,7 +120,7 @@ export const usePrivacyPolicy = () => {
       };
 
       const response = await axios.put(
-        `https://gurihage.com/api/privacy/update/${id}`,
+        `https://api.xirfadsan.com/api/privacy/update/${id}`,
         payload,
         {
           headers: { "Content-Type": "application/json" },
